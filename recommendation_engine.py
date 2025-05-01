@@ -252,9 +252,33 @@ class RecommendationEngine:
                 np.random.shuffle(combined_recommendations)
                 recommended_movie_ids = combined_recommendations[:n_recommendations]
         else:
-            # Without meta model, just take a random sample from combined recommendations
-            np.random.shuffle(combined_recommendations)
-            recommended_movie_ids = combined_recommendations[:n_recommendations]
+            # Without meta model, use a weighted combination of recommendations
+            # Prioritize movies that appear in both recommendation sets
+            combined_rec_scores = {}
+            
+            # Score movies that appear in both recommendation methods higher
+            for movie_id in combined_recommendations:
+                score = 0
+                if movie_id in knn_recommendations:
+                    score += 1
+                if movie_id in svd_recommendations:
+                    score += 1
+                    
+                # Use the position in each list to further refine the scoring
+                if movie_id in knn_recommendations:
+                    score += (n_recommendations - knn_recommendations.index(movie_id)) / n_recommendations
+                if movie_id in svd_recommendations:
+                    score += (n_recommendations - svd_recommendations.index(movie_id)) / n_recommendations
+                
+                combined_rec_scores[movie_id] = score
+            
+            # Sort by score
+            sorted_recommendations = sorted(combined_rec_scores.items(), 
+                                           key=lambda x: x[1], 
+                                           reverse=True)
+            
+            # Take top N
+            recommended_movie_ids = [movie_id for movie_id, _ in sorted_recommendations[:n_recommendations]]
         
         # Get detailed information for the recommended movies
         recommended_movies = self.data_processor.get_movie_details(recommended_movie_ids)

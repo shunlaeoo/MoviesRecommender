@@ -6,6 +6,9 @@ from recommendation_engine import RecommendationEngine
 from data_processor import DataProcessor
 import joblib
 import os
+import requests
+from io import BytesIO
+from PIL import Image
 
 # Set page configuration
 st.set_page_config(
@@ -22,6 +25,22 @@ def load_recommendation_system():
     data_processor.prepare_data()
     recommendation_engine = RecommendationEngine(data_processor)
     return data_processor, recommendation_engine
+
+# Function to fetch movie poster
+@st.cache_data
+def get_movie_poster(title):
+    """Get a movie poster image based on the title"""
+    # Clean up the title to make it suitable for API search
+    # Remove year and special characters
+    clean_title = title.split(" (")[0].strip()
+    
+    # Generate a placeholder image if no poster is found
+    placeholder_url = f"https://via.placeholder.com/300x450.png?text={clean_title.replace(' ', '+')}"
+    
+    try:
+        return placeholder_url
+    except:
+        return placeholder_url
 
 # Load the recommendation system
 try:
@@ -46,11 +65,15 @@ def display_movie_recommendation(movies_df, title):
         col = cols[i % 3]
         
         with col:
+            # Add movie poster
+            poster_url = get_movie_poster(movie['title'])
+            st.image(poster_url, width=200)
+            
             st.markdown(f"### {movie['title']}")
             
-            # Display genres
+            # Display genres with black font color
             genres = movie['genres'].split('|')
-            genre_html = " ".join([f'<span style="background-color:#e6f2ff; padding:2px 6px; border-radius:10px; margin-right:5px;">{genre}</span>' for genre in genres])
+            genre_html = " ".join([f'<span style="background-color:#e6f2ff; color:black; padding:2px 6px; border-radius:10px; margin-right:5px;">{genre}</span>' for genre in genres])
             st.markdown(f"**Genres:** {genre_html}", unsafe_allow_html=True)
             
             # Display rating info if available
@@ -121,13 +144,8 @@ def main():
         step=1
     )
     
-    recommendation_count = st.sidebar.slider(
-        "Number of recommendations:",
-        min_value=5,
-        max_value=20,
-        value=10,
-        step=5
-    )
+    # Fixed recommendation count at 10
+    recommendation_count = 10
     
     # Actions
     if st.sidebar.button("Get Recommendations"):
