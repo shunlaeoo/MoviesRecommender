@@ -35,8 +35,8 @@ def get_movie_poster(title):
     import re
     clean_title = re.sub(r'\s*\(\d{4}\)$', '', title).strip()
     
-    # Default image in case we can't fetch a poster
-    default_image = "https://m.media-amazon.com/images/G/01/imdb/images/nopicture/180x268/film-173410679._CB468515592_.png"
+    # Default image in case we can't fetch a poster - using a standard movie poster size
+    default_image = "https://coolbackgrounds.io/images/backgrounds/black/pure-black-background-f82588d3.jpg"
     
     # Since we're using a publicly available service for demonstration purposes,
     # we'll just use a static set of movie posters for popular films
@@ -90,8 +90,8 @@ def get_movie_poster(title):
         if clean_no_the == key_no_the:
             return url
     
-    # If no match found, create a placeholder with the movie title
-    return f"https://via.placeholder.com/300x450.jpg?text={clean_title.replace(' ', '+')}"
+    # If no match found, return the default image
+    return default_image
 
 # Load the recommendation system
 try:
