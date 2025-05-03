@@ -43,8 +43,8 @@ class RecommendationEngine:
         if user_ratings is None or len(user_ratings) == 0:
             return []
         
-        # Create a user profile based on genres of movies they rated highly (>= 4)
-        highly_rated = user_ratings[user_ratings['rating'] >= 4]
+        # Create a user profile based on genres of movies they rated highly (>= 3)
+        highly_rated = user_ratings[user_ratings['rating'] >= 3]
         
         if len(highly_rated) == 0:
             return []
@@ -217,10 +217,10 @@ class RecommendationEngine:
                     feature_vector = [
                         1 if movie_id in knn_recommendations else 0,
                         1 if movie_id in svd_recommendations else 0,
-                        movie_stats['rating_count'].values[0],
-                        movie_stats['rating_mean'].values[0],
-                        movie_stats['popularity_score'].values[0],
-                        avg_user_rating
+                        # movie_stats['rating_count'].values[0],
+                        # movie_stats['rating_mean'].values[0],
+                        # movie_stats['popularity_score'].values[0],
+                        # avg_user_rating
                     ]
                     
                     movie_features.append((movie_id, feature_vector))
